@@ -15,7 +15,7 @@ def script():
 	data = data['results']
 	for person in data:
 
-		print((person['nat']))
+		print((person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', '')))
 		person = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 			last=person['name']['last'], street_number=person['location']['street']['number'],
 			street_name=person['location']['street']['name'], city=person['location']['city'],
@@ -29,7 +29,9 @@ def script():
 			password_md5=person['login']['md5'], password_sha1=person['login']['sha1'],
 			password_sha256=person['login']['sha256'], dob=person['dob']['date'],
 			age=person['dob']['age'], registered_date=person['registered']['date'],
-			registered_age=person['registered']['age'], phone=person['phone'], cell=person['cell'],
+			registered_age=person['registered']['age'],
+			phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
+			cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 			id_name=person['id']['name'], id_value=person['id']['value'],
 			picture_large=person['picture']['large'], picture_medium=person['picture']['medium'],
 			thumbnail=person['picture']['thumbnail'], nat=person['nat'])
