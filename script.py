@@ -62,8 +62,29 @@ def query_1():
 	procentage_f = (female/(male+female))*100
 	procentage_m = (male/(male+female))*100
 	result = f"In database there are {procentage_f}% women and {procentage_m}% men"
-
 	return result
 
 
-query_1()
+def query_2():
+	all_entries = Person.objects.all()
+	age_list = [person.age for person in all_entries]
+	age_list_male = [person.age for person in all_entries if person.gender == 'male']
+	age_list_female = [person.age for person in all_entries if person.gender == 'female']
+
+	age_sum = sum(age_list)
+	age_sum_male = sum(age_list_male)
+	age_sum_female = sum(age_list_female)
+
+	people_counter = len(age_list)
+	male_counter = len(age_list_male)
+	female_counter = len(age_list_female)
+
+	average_all = round(age_sum/people_counter,2)
+	average_male = round(age_sum_male / male_counter,2)
+	average_female = round(age_sum_female / female_counter,2)
+
+	result = f'Whole database average age was {average_all} years, only female average age was {average_female} years' \
+			 f'and only male average age was {average_male} years'
+	return result
+
+print(query_2())
