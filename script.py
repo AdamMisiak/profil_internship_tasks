@@ -79,7 +79,7 @@ def query_2():
 	male_counter = len(age_list_male)
 	female_counter = len(age_list_female)
 
-	average_all = round(age_sum/people_counter,2)
+	average_all = round(age_sum / people_counter,2)
 	average_male = round(age_sum_male / male_counter,2)
 	average_female = round(age_sum_female / female_counter,2)
 
@@ -87,4 +87,19 @@ def query_2():
 			 f'and only male average age was {average_male} years'
 	return result
 
-print(query_2())
+
+def query_3(elements):
+	unique_cities={}
+	all_entries = Person.objects.all()
+	for person in all_entries:
+		if person.city in unique_cities:
+			unique_cities[person.city]=unique_cities[person.city]+1
+		else:
+			unique_cities[person.city]=1
+	sorted_unique_cities = sorted(unique_cities.items(), key=lambda x: x[1], reverse=True)
+
+	for city in sorted_unique_cities[:elements]:
+		print(city[0], city[1])
+
+
+query_3(6)
