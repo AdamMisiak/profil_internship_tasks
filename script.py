@@ -24,7 +24,7 @@ def calculate_how_many_days_to_birthday(dob, age):
 	return days_to_birthday
 
 
-def script():
+def create_database():
 	with open('queries/persons.json') as file:
 		data = json.load(file)
 
@@ -56,4 +56,14 @@ def script():
 		person.save()
 
 
-script()
+def query_1():
+	female = Person.objects.filter(gender='female').count()
+	male = Person.objects.filter(gender='male').count()
+	procentage_f = (female/(male+female))*100
+	procentage_m = (male/(male+female))*100
+	result = f"In database there are {procentage_f}% women and {procentage_m}% men"
+
+	return result
+
+
+query_1()

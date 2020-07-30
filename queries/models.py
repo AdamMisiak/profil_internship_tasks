@@ -39,6 +39,6 @@ class Person(models.Model):
     thumbnail = models.CharField(max_length=255)
     nat = models.CharField(max_length=255)
 
-    def __str__(self):
-        full_name = (self.first, self.last)
-        return full_name
+    # def __str__(self):
+    #     full_name = (self.first, self.last)
+    #     return full_name
