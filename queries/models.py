@@ -34,8 +34,8 @@ class Person(models.Model):
     cell = models.CharField(max_length=255)
     id_name = models.CharField(max_length=255)
     id_value = models.CharField(max_length=255, null=True)
-    picture_large = models.CharField(max_length=255)
-    picture_medium = models.CharField(max_length=255)
+    # picture_large = models.CharField(max_length=255)
+    # picture_medium = models.CharField(max_length=255)
     thumbnail = models.CharField(max_length=255)
     nat = models.CharField(max_length=255)
 

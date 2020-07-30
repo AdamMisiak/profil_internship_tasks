@@ -25,32 +25,11 @@ def calculate_how_many_days_to_birthday(dob, age):
 
 
 def script():
-
 	with open('queries/persons.json') as file:
 		data = json.load(file)
 
 	data = data['results']
 	for person in data:
-
-		#print(person['dob']['date'][:10].replace('-', '/'))
-
-		# date_of_birthday = datetime.strptime(person['dob']['date'][:10].replace('-', '/'), '%Y/%m/%d').date()
-		# print(date_of_birthday)
-		#
-		# age=person['dob']['age']
-		# date_of_birthday_this_year = date_of_birthday.replace(year=date_of_birthday.year+age)
-		# print(date_of_birthday_this_year)
-		# days_to_birthday = (date_of_birthday_this_year-today).days
-		# if days_to_birthday <0:
-		# 	if (date_of_birthday_this_year.year+1)%4 == 0:
-		# 		days_to_birthday = days_to_birthday + 366
-		# 		print('prze')
-		# 	else:
-		# 		days_to_birthday = days_to_birthday + 365
-		# print(days_to_birthday)
-
-		#print(date_of_birthday.year+age)
-
 
 		dob = calculate_how_many_days_to_birthday(person['dob']['date'],person['dob']['age'])
 		print(dob)
@@ -73,7 +52,6 @@ def script():
 			phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 			cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 			id_name=person['id']['name'], id_value=person['id']['value'],
-			picture_large=person['picture']['large'], picture_medium=person['picture']['medium'],
 			thumbnail=person['picture']['thumbnail'], nat=person['nat'])
 		person.save()
 
