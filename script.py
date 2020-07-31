@@ -102,4 +102,18 @@ def query_3(elements):
 		print(city[0], city[1])
 
 
-query_3(6)
+def query_4(elements):
+	unique_pass={}
+	all_entries = Person.objects.all()
+	for person in all_entries:
+		if person.password in unique_pass:
+			unique_pass[person.password]=unique_pass[person.password]+1
+		else:
+			unique_pass[person.password]=1
+	sorted_unique_pass = sorted(unique_pass.items(), key=lambda x: x[1], reverse=True)
+
+	for city in sorted_unique_pass[:elements]:
+		print(city[0], city[1])
+
+
+query_4(6)
