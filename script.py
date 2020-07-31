@@ -116,4 +116,15 @@ def query_4(elements):
 		print(city[0], city[1])
 
 
-query_4(6)
+def query_5(start_date, end_date):
+	all_entries = Person.objects.all()
+	start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
+	end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
+	print(f'List of people with birthday between {start_date_conv} and {end_date_conv}:')
+	for number, person in enumerate(all_entries):
+		dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
+		if start_date_conv < dob < end_date_conv:
+			print(f'Person {person.first} {person.last} has birthday on: {dob}')
+
+
+#query_5('1950/06/06','1963/10/05')
