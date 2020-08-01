@@ -11,7 +11,6 @@ Person = apps.get_model('queries', 'Person')
 
 
 def calculate_how_many_days_to_birthday(dob, age):
-	#needs to be checked with before/after Feb date
 	today = date.today()
 	dob = dob[:10].replace('-', '/')
 	date_of_birthday = datetime.strptime(dob, '%Y/%m/%d').date()
@@ -28,13 +27,9 @@ def calculate_how_many_days_to_birthday(dob, age):
 def create_database():
 	with open('queries/persons.json') as file:
 		data = json.load(file)
-
+	print('Please wait, database is creating...')
 	data = data['results']
 	for person in data:
-
-		dob = calculate_how_many_days_to_birthday(person['dob']['date'],person['dob']['age'])
-		print(dob)
-
 		person = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 			last=person['name']['last'], street_number=person['location']['street']['number'],
 			street_name=person['location']['street']['name'], city=person['location']['city'],
@@ -57,16 +52,16 @@ def create_database():
 		person.save()
 
 
-def calculate_male_female_procentage():
+def calculate_male_female_percentage():
 	female = Person.objects.filter(gender='female').count()
 	male = Person.objects.filter(gender='male').count()
-	procentage_f = (female/(male+female))*100
-	procentage_m = (male/(male+female))*100
-	result = f"In database, there are {procentage_f}% women and {procentage_m}% men"
+	percentage_f = (female/(male+female))*100
+	percentage_m = (male/(male+female))*100
+	result = f"In database, there are {percentage_f}% women and {percentage_m}% men"
 	return result
 
 
-def calculate_average_age():
+def calculate_average_age(sex):
 	all_entries = Person.objects.all()
 	age_list = [person.age for person in all_entries]
 	age_list_male = [person.age for person in all_entries if person.gender == 'male']
@@ -84,37 +79,49 @@ def calculate_average_age():
 	average_male = round(age_sum_male / male_counter,2)
 	average_female = round(age_sum_female / female_counter,2)
 
-	result = f'Whole database average age was {average_all} years, only female average age was {average_female} years' \
-			 f'and only male average age was {average_male} years'
+	if sex == 'male':
+		result = f'Average age for men is {average_male} years'
+	elif sex == 'female':
+		result = f'Average age for women is {average_female} years'
+	elif sex == 'all':
+		result = f'Average age for all is {average_all} years'
+	else:
+		result = 'Wrong argument! Please type: male, female or all'
 	return result
 
 
-def find_most_popular_cities(elements):
+def find_most_common_cities(elements):
 	unique_cities={}
 	all_entries = Person.objects.all()
-	for person in all_entries:
-		if person.city in unique_cities:
-			unique_cities[person.city]=unique_cities[person.city]+1
-		else:
-			unique_cities[person.city]=1
-	sorted_unique_cities = sorted(unique_cities.items(), key=lambda x: x[1], reverse=True)
+	if elements.isnumeric():
+		for person in all_entries:
+			if person.city in unique_cities:
+				unique_cities[person.city]=unique_cities[person.city]+1
+			else:
+				unique_cities[person.city]=1
+		sorted_unique_cities = sorted(unique_cities.items(), key=lambda x: x[1], reverse=True)
 
-	for city in sorted_unique_cities[:elements]:
-		print(city[0], city[1])
+		for city in sorted_unique_cities[:int(elements)]:
+			print(city[0], city[1])
+	else:
+		print(f'{elements} is not a number! Inputs needs to be int type.')
 
 
-def find_most_popular_passwords(elements):
+def find_most_common_passwords(elements):
 	unique_pass={}
 	all_entries = Person.objects.all()
-	for person in all_entries:
-		if person.password in unique_pass:
-			unique_pass[person.password]=unique_pass[person.password]+1
-		else:
-			unique_pass[person.password]=1
-	sorted_unique_pass = sorted(unique_pass.items(), key=lambda x: x[1], reverse=True)
+	if elements.isnumeric():
+		for person in all_entries:
+			if person.password in unique_pass:
+				unique_pass[person.password]=unique_pass[person.password]+1
+			else:
+				unique_pass[person.password]=1
+		sorted_unique_pass = sorted(unique_pass.items(), key=lambda x: x[1], reverse=True)
 
-	for city in sorted_unique_pass[:elements]:
-		print(city[0], city[1])
+		for password in sorted_unique_pass[:int(elements)]:
+			print(password[0], password[1])
+	else:
+		print(f'{elements} is not a number! Inputs needs to be int type.')
 
 
 def find_birthdays_between_dates(start_date, end_date):
@@ -125,7 +132,7 @@ def find_birthdays_between_dates(start_date, end_date):
 	for number, person in enumerate(all_entries):
 		dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 		if start_date_conv < dob < end_date_conv:
-			print(f'Person {person.first} {person.last} has birthday on: {dob}')
+			print(f'Person "{person.first} {person.last}" has birthday on: {dob}')
 
 
 def calculate_safety_of_password():
@@ -161,10 +168,30 @@ def calculate_safety_of_password():
 		print(f'Password "{password[0]}" scores {password[1]} points for security')
 
 
+my_parser = argparse.ArgumentParser()
+my_parser.add_argument('task', action='store')
+my_parser.add_argument('--arg', required=False)
+my_parser.add_argument('--start', required=False)
+my_parser.add_argument('--end', required=False)
 
+args = my_parser.parse_args()
 
-#print(args.task)
+if args.task == 'male-female-percentage':
+	print(calculate_male_female_percentage())
+elif args.task == 'average-age':
+	print(calculate_average_age(args.arg))
+elif args.task == 'most-common-cities':
+	find_most_common_cities(args.arg)
+elif args.task == 'most-common-passwords':
+	find_most_common_passwords(args.arg)
+elif args.task == 'dob-between':
+	find_birthdays_between_dates(args.start, args.end)
+elif args.task == 'safety-of-passwords':
+	calculate_safety_of_password()
+elif args.task == 'create-db':
+	create_database()
+else:
+	print('There is no such command! Check README.md file for available commands')
 
-#calculate_safety_of_password()
 
 #query_5('1950/06/06','1963/10/05')
