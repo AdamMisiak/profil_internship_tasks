@@ -1,5 +1,6 @@
 import django
 import json
+import argparse
 from django.apps import apps
 from datetime import date, datetime
 import os
@@ -24,7 +25,7 @@ def calculate_how_many_days_to_birthday(dob, age):
 	return days_to_birthday
 
 
-def script():
+def create_database():
 	with open('queries/persons.json') as file:
 		data = json.load(file)
 
@@ -56,4 +57,114 @@ def script():
 		person.save()
 
 
-script()
+def calculate_male_female_procentage():
+	female = Person.objects.filter(gender='female').count()
+	male = Person.objects.filter(gender='male').count()
+	procentage_f = (female/(male+female))*100
+	procentage_m = (male/(male+female))*100
+	result = f"In database, there are {procentage_f}% women and {procentage_m}% men"
+	return result
+
+
+def calculate_average_age():
+	all_entries = Person.objects.all()
+	age_list = [person.age for person in all_entries]
+	age_list_male = [person.age for person in all_entries if person.gender == 'male']
+	age_list_female = [person.age for person in all_entries if person.gender == 'female']
+
+	age_sum = sum(age_list)
+	age_sum_male = sum(age_list_male)
+	age_sum_female = sum(age_list_female)
+
+	people_counter = len(age_list)
+	male_counter = len(age_list_male)
+	female_counter = len(age_list_female)
+
+	average_all = round(age_sum / people_counter,2)
+	average_male = round(age_sum_male / male_counter,2)
+	average_female = round(age_sum_female / female_counter,2)
+
+	result = f'Whole database average age was {average_all} years, only female average age was {average_female} years' \
+			 f'and only male average age was {average_male} years'
+	return result
+
+
+def find_most_popular_cities(elements):
+	unique_cities={}
+	all_entries = Person.objects.all()
+	for person in all_entries:
+		if person.city in unique_cities:
+			unique_cities[person.city]=unique_cities[person.city]+1
+		else:
+			unique_cities[person.city]=1
+	sorted_unique_cities = sorted(unique_cities.items(), key=lambda x: x[1], reverse=True)
+
+	for city in sorted_unique_cities[:elements]:
+		print(city[0], city[1])
+
+
+def find_most_popular_passwords(elements):
+	unique_pass={}
+	all_entries = Person.objects.all()
+	for person in all_entries:
+		if person.password in unique_pass:
+			unique_pass[person.password]=unique_pass[person.password]+1
+		else:
+			unique_pass[person.password]=1
+	sorted_unique_pass = sorted(unique_pass.items(), key=lambda x: x[1], reverse=True)
+
+	for city in sorted_unique_pass[:elements]:
+		print(city[0], city[1])
+
+
+def find_birthdays_between_dates(start_date, end_date):
+	all_entries = Person.objects.all()
+	start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
+	end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
+	print(f'List of people with birthday between {start_date_conv} and {end_date_conv}:')
+	for number, person in enumerate(all_entries):
+		dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
+		if start_date_conv < dob < end_date_conv:
+			print(f'Person {person.first} {person.last} has birthday on: {dob}')
+
+
+def calculate_safety_of_password():
+	all_entries = Person.objects.all()
+	pointed_pass={}
+	for person in all_entries:
+		is_lower_flag=False
+		is_upper_flag=False
+		is_numeric_flag=False
+		is_special_flag=False
+		pointed_pass[person.password] = 0
+		if len(person.password) >= 8:
+			pointed_pass[person.password] += 5
+		for letter in person.password:
+			if letter.islower() and not is_lower_flag:
+				pointed_pass[person.password] += 1
+				is_lower_flag = True
+
+			if letter.isupper() and not is_upper_flag:
+				pointed_pass[person.password] += 2
+				is_upper_flag = True
+
+			if letter.isnumeric() and not is_numeric_flag:
+				pointed_pass[person.password] += 1
+				is_numeric_flag = True
+
+			if not letter.isalnum() and not is_special_flag:
+				pointed_pass[person.password] += 3
+				is_special_flag = True
+
+	sorted_passwords = sorted(pointed_pass.items(), key=lambda x: x[1], reverse=True)
+	for password in sorted_passwords:
+		print(f'Password "{password[0]}" scores {password[1]} points for security')
+
+
+
+
+#print(args.task)
+
+#calculate_safety_of_password()
+
+#query_5('1950/06/06','1963/10/05')
