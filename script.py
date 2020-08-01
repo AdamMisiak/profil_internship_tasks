@@ -1,5 +1,6 @@
 import django
 import json
+import argparse
 from django.apps import apps
 from datetime import date, datetime
 import os
@@ -56,16 +57,16 @@ def create_database():
 		person.save()
 
 
-def query_1():
+def calculate_male_female_procentage():
 	female = Person.objects.filter(gender='female').count()
 	male = Person.objects.filter(gender='male').count()
 	procentage_f = (female/(male+female))*100
 	procentage_m = (male/(male+female))*100
-	result = f"In database there are {procentage_f}% women and {procentage_m}% men"
+	result = f"In database, there are {procentage_f}% women and {procentage_m}% men"
 	return result
 
 
-def query_2():
+def calculate_average_age():
 	all_entries = Person.objects.all()
 	age_list = [person.age for person in all_entries]
 	age_list_male = [person.age for person in all_entries if person.gender == 'male']
@@ -88,7 +89,7 @@ def query_2():
 	return result
 
 
-def query_3(elements):
+def find_most_popular_cities(elements):
 	unique_cities={}
 	all_entries = Person.objects.all()
 	for person in all_entries:
@@ -102,7 +103,7 @@ def query_3(elements):
 		print(city[0], city[1])
 
 
-def query_4(elements):
+def find_most_popular_passwords(elements):
 	unique_pass={}
 	all_entries = Person.objects.all()
 	for person in all_entries:
@@ -116,7 +117,7 @@ def query_4(elements):
 		print(city[0], city[1])
 
 
-def query_5(start_date, end_date):
+def find_birthdays_between_dates(start_date, end_date):
 	all_entries = Person.objects.all()
 	start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
 	end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
@@ -127,7 +128,7 @@ def query_5(start_date, end_date):
 			print(f'Person {person.first} {person.last} has birthday on: {dob}')
 
 
-def query_6():
+def calculate_safety_of_password():
 	all_entries = Person.objects.all()
 	pointed_pass={}
 	for person in all_entries:
@@ -159,7 +160,11 @@ def query_6():
 	for password in sorted_passwords:
 		print(f'Password "{password[0]}" scores {password[1]} points for security')
 
-		
-query_6()
+
+
+
+#print(args.task)
+
+#calculate_safety_of_password()
 
 #query_5('1950/06/06','1963/10/05')
