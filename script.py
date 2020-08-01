@@ -127,4 +127,39 @@ def query_5(start_date, end_date):
 			print(f'Person {person.first} {person.last} has birthday on: {dob}')
 
 
+def query_6():
+	all_entries = Person.objects.all()
+	pointed_pass={}
+	for person in all_entries:
+		is_lower_flag=False
+		is_upper_flag=False
+		is_numeric_flag=False
+		is_special_flag=False
+		pointed_pass[person.password] = 0
+		if len(person.password) >= 8:
+			pointed_pass[person.password] += 5
+		for letter in person.password:
+			if letter.islower() and not is_lower_flag:
+				pointed_pass[person.password] += 1
+				is_lower_flag = True
+
+			if letter.isupper() and not is_upper_flag:
+				pointed_pass[person.password] += 2
+				is_upper_flag = True
+
+			if letter.isnumeric() and not is_numeric_flag:
+				pointed_pass[person.password] += 1
+				is_numeric_flag = True
+
+			if not letter.isalnum() and not is_special_flag:
+				pointed_pass[person.password] += 3
+				is_special_flag = True
+
+	sorted_passwords = sorted(pointed_pass.items(), key=lambda x: x[1], reverse=True)
+	for password in sorted_passwords:
+		print(f'Password "{password[0]}" scores {password[1]} points for security')
+
+		
+query_6()
+
 #query_5('1950/06/06','1963/10/05')
