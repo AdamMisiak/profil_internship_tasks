@@ -12,6 +12,16 @@ Tasks created for back-end intern in Profil Software company.
 * Python version: 3.7
 
 ## Setup
+To create virtual environment:
+```
+python3 -m venv venv
+```
+
+To install requirements:
+```
+pip install -r requirements.txt
+```
+
 To create database:
 ```
 python script.py create-db
@@ -42,7 +52,7 @@ To get people born between 2 dates:
 python script.py dob-between --start [yyyy/mm/dd] --end [yyyy/mm/dd]
 ```
 
-To get descending list of safest passwords:
+To get descending list of the safest passwords:
 ```
 python script.py safety-of-passwords
 ```
