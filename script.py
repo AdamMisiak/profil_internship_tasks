@@ -27,9 +27,9 @@ class Database():
 				days_to_birthday = days_to_birthday + 365
 		return days_to_birthday
 
-	def create_database(self, file):
+	def create_database(self):
 		print('Please wait, database is creating...')
-		file = file['results']
+		file = self.file['results']
 		for person in file:
 			person = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 							last=person['name']['last'], street_number=person['location']['street']['number'],
@@ -63,10 +63,10 @@ class Database():
 		return result
 
 	def calculate_average_age(self, sex):
-		all_entries = Person.objects.all()
-		age_list = [person.age for person in all_entries]
-		age_list_male = [person.age for person in all_entries if person.gender == 'male']
-		age_list_female = [person.age for person in all_entries if person.gender == 'female']
+		all_people = Person.objects.all()
+		age_list = [person.age for person in all_people]
+		age_list_male = [person.age for person in all_people if person.gender == 'male']
+		age_list_female = [person.age for person in all_people if person.gender == 'female']
 
 		age_sum = sum(age_list)
 		age_sum_male = sum(age_list_male)
@@ -91,11 +91,10 @@ class Database():
 		return result
 
 	def find_most_common_elements(self, searching_element_input, quantity=5):
-		all_entries = Person.objects.all()
+		all_people = Person.objects.all()
 		if quantity.isnumeric():
 			unique_elements = {}
-			for person in all_entries:
-
+			for person in all_people:
 				if searching_element_input == 'city':
 					searching_element = person.city
 				elif searching_element_input == 'password':
@@ -114,46 +113,54 @@ class Database():
 
 
 	def find_birthdays_between_dates(self, start_date, end_date):
-		all_entries = Person.objects.all()
+		all_people = Person.objects.all()
 		start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
 		end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
 		print(f'List of people with birthday between {start_date_conv} and {end_date_conv}:')
-		for person in all_entries:
+		for person in all_people:
 			dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 			if start_date_conv < dob < end_date_conv:
 				print(f'Person "{person.first} {person.last}" has birthday on: {dob}')
 
-	def calculate_safety_of_password(self):
-		all_entries = Person.objects.all()
-		pointed_pass = {}
-		for person in all_entries:
-			is_lower_flag = False
-			is_upper_flag = False
-			is_numeric_flag = False
-			is_special_flag = False
-			pointed_pass[person.password] = 0
-			if len(person.password) >= 8:
-				pointed_pass[person.password] += 5
-			for letter in person.password:
-				if letter.islower() and not is_lower_flag:
-					pointed_pass[person.password] += 1
-					is_lower_flag = True
+	def calculate_safety_points_of_password(self, password):
+		is_lower_flag = False
+		is_upper_flag = False
+		is_numeric_flag = False
+		is_special_flag = False
+		points = 0
+		if len(password) >= 8:
+			points += 5
+		for letter in password:
+			if letter.islower() and not is_lower_flag:
+				points += 1
+				is_lower_flag = True
 
-				if letter.isupper() and not is_upper_flag:
-					pointed_pass[person.password] += 2
-					is_upper_flag = True
+			if letter.isupper() and not is_upper_flag:
+				points += 2
+				is_upper_flag = True
 
-				if letter.isnumeric() and not is_numeric_flag:
-					pointed_pass[person.password] += 1
-					is_numeric_flag = True
+			if letter.isnumeric() and not is_numeric_flag:
+				points += 1
+				is_numeric_flag = True
 
-				if not letter.isalnum() and not is_special_flag:
-					pointed_pass[person.password] += 3
-					is_special_flag = True
+			if not letter.isalnum() and not is_special_flag:
+				points += 3
+				is_special_flag = True
+		return password, points
 
-		sorted_passwords = sorted(pointed_pass.items(), key=lambda x: x[1], reverse=True)
+	def check_people_passwords(self):
+		all_people = Person.objects.all()
+		pointed_passwords = {}
+		for person in all_people:
+			password, points = self.calculate_safety_points_of_password(person.password)
+			pointed_passwords[password] = points
+
+		sorted_passwords = sorted(pointed_passwords.items(), key=lambda x: x[1], reverse=True)
 		for password in sorted_passwords:
 			print(f'Password "{password[0]}" scores {password[1]} points for security')
+
+	def __str__(self):
+		return str(f'Database created from persons.json file, has {Person.objects.all().count()} records')
 
 
 with open('queries/persons.json') as file:
@@ -164,7 +171,6 @@ my_parser.add_argument('task', action='store')
 my_parser.add_argument('--arg', required=False)
 my_parser.add_argument('--start', required=False)
 my_parser.add_argument('--end', required=False)
-
 args = my_parser.parse_args()
 
 if args.task == 'male-female-percentage':
@@ -178,7 +184,7 @@ elif args.task == 'most-common-passwords':
 elif args.task == 'dob-between':
 	DB.find_birthdays_between_dates(args.start, args.end)
 elif args.task == 'safety-of-passwords':
-	DB.calculate_safety_of_password()
+	DB.check_people_passwords()
 elif args.task == 'create-db':
 	DB.create_database()
 else:
