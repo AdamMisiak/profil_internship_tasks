@@ -59,7 +59,7 @@ python script.py safety-of-passwords
 
 To run tests:
 ```
-
+python -m unittest test_script/test_script.py
 ```
 
 ## Contact

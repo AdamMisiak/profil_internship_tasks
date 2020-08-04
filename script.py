@@ -162,29 +162,31 @@ class Database():
 		return str(f'Database created from {file.name} file, has {Person.objects.all().count()} records')
 
 
-with open('queries/persons.json') as file:
-	data = json.load(file)
-DB = Database(data)
-my_parser = argparse.ArgumentParser()
-my_parser.add_argument('task', action='store')
-my_parser.add_argument('--arg', required=False)
-my_parser.add_argument('--start', required=False)
-my_parser.add_argument('--end', required=False)
-args = my_parser.parse_args()
+if __name__ == '__main__':
+	with open('queries/persons.json') as file:
+		data = json.load(file)
+	DB = Database(data)
+	my_parser = argparse.ArgumentParser()
+	my_parser.add_argument('task', action='store')
+	my_parser.add_argument('--arg', required=False)
+	my_parser.add_argument('--start', required=False)
+	my_parser.add_argument('--end', required=False)
+	args = my_parser.parse_args()
 
-if args.task == 'male-female-percentage':
-	print(DB.calculate_male_female_percentage())
-elif args.task == 'average-age':
-	print(DB.calculate_average_age(args.arg))
-elif args.task == 'most-common-cities':
-	DB.find_most_common_elements('city', args.arg)
-elif args.task == 'most-common-passwords':
-	DB.find_most_common_elements('password', args.arg)
-elif args.task == 'dob-between':
-	DB.find_birthdays_between_dates(args.start, args.end)
-elif args.task == 'safety-of-passwords':
-	DB.check_people_passwords()
-elif args.task == 'create-db':
-	DB.create_database()
-else:
-	print('There is no such command! Check README.md file for available commands')
+	if args.task == 'male-female-percentage':
+		print(DB.calculate_male_female_percentage())
+	elif args.task == 'average-age':
+		print(DB.calculate_average_age(args.arg))
+	elif args.task == 'most-common-cities':
+		DB.find_most_common_elements('city', args.arg)
+	elif args.task == 'most-common-passwords':
+		DB.find_most_common_elements('password', args.arg)
+	elif args.task == 'dob-between':
+		DB.find_birthdays_between_dates(args.start, args.end)
+	elif args.task == 'safety-of-passwords':
+		DB.check_people_passwords()
+	elif args.task == 'create-db':
+		DB.create_database()
+	else:
+		print('There is no such command! Check README.md file for available commands')
+
