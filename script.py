@@ -12,10 +12,11 @@ class Database():
 	def __init__(self, file):
 		self.file = file
 
-	def calculate_how_many_days_to_birthday(self, dob, age):
+	def calculate_how_many_days_to_birthday(self, dob):
 		today = date.today()
 		dob = dob[:10].replace('-', '/')
 		date_of_birthday = datetime.strptime(dob, '%Y/%m/%d').date()
+		age = today.year - date_of_birthday.year
 		date_of_birthday_this_year = date_of_birthday.replace(year=date_of_birthday.year + age)
 		days_to_birthday = (date_of_birthday_this_year - today).days
 		if days_to_birthday < 0:
@@ -43,8 +44,7 @@ class Database():
 							password_md5=person['login']['md5'], password_sha1=person['login']['sha1'],
 							password_sha256=person['login']['sha256'], dob=person['dob']['date'],
 							age=person['dob']['age'], registered_date=person['registered']['date'],
-							days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date'],
-																					  person['dob']['age']),
+							days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date']),
 							registered_age=person['registered']['age'],
 							phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 							cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
@@ -89,7 +89,7 @@ class Database():
 			result = 'Wrong argument! Please type: male, female or all'
 		return result
 
-	def find_most_common_elements(self, searching_element_input, quantity=5):
+	def find_most_common_elements(self, searching_element_input, quantity='5'):
 		all_people = Person.objects.all()
 		if quantity.isnumeric():
 			unique_elements = {}
@@ -107,9 +107,11 @@ class Database():
 
 			for element in sorted_unique_elements[:int(quantity)]:
 				print(element[0], element[1])
+				return sorted_unique_elements
+
 		else:
 			print(f'{quantity} is not a number! Input needs to be int type.')
-
+			return f'{quantity} is not a number! Input needs to be int type.'
 
 	def find_birthdays_between_dates(self, start_date, end_date):
 		all_people = Person.objects.all()
