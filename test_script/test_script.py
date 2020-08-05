@@ -4,13 +4,12 @@ from datetime import date, datetime
 from script import *
 
 
-# from script import calculate_how_many_days_to_birthday
-
 class TestDataBase(unittest.TestCase):
 	with open('persons.json') as file:
 		data = json.load(file)
 	global DB
 	DB = Database(data)
+
 	def test_database(self):
 
 		random_person = "{'gender': 'male', 'name': {'title': 'Mr', 'first': 'Eeli', 'last': 'Lehtonen'}, " \
@@ -48,24 +47,24 @@ class TestFunctions(unittest.TestCase):
 
 	def test_calculate_male_female_percentage(self):
 		result = DB.calculate_male_female_percentage()
-		self.assertEqual(result, 'In database, there are 50.144% women and 49.856% men')
+		self.assertEqual(result, 'In database, there are 49.8% women and 50.2% men')
 
 	def test_calculate_average_age(self):
 		female = DB.calculate_average_age('female')
 		male = DB.calculate_average_age('male')
 		all = DB.calculate_average_age('all')
 		error = DB.calculate_average_age('mezczyzni')
-		self.assertIn('49.36', female)
-		self.assertIn('48.69', male)
-		self.assertIn('49.03', all)
+		self.assertIn('49.51', female)
+		self.assertIn('48.71', male)
+		self.assertIn('49.11', all)
 		self.assertEqual(error, 'Wrong argument! Please type: male, female or all')
 
 	def test_find_most_common_elements(self):
 		city_result = DB.find_most_common_elements('city', '10')
 		password_result = DB.find_most_common_elements('password', '10')
 		error_result = DB.find_most_common_elements('password', 'ten')
-		self.assertIn("'Toulon', 5", str(city_result))
-		self.assertIn("'r2d2', 2", str(password_result))
+		self.assertIn("'Toulon', 4", str(city_result))
+		self.assertIn("'surf', 3", str(password_result))
 		self.assertIn("ten is not a number! Input needs to be int type.", error_result)
 
 	def test_find_birthdays_between_dates(self):
