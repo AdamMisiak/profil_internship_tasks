@@ -1,6 +1,7 @@
 import django
 import json
 import argparse
+import requests
 from django.apps import apps
 from datetime import date, datetime
 import os
@@ -9,8 +10,11 @@ django.setup()
 Person = apps.get_model('queries', 'Person')
 
 class Database():
-	def __init__(self, file):
-		self.file = file
+	def __init__(self, seeds):
+		self.seeds = seeds
+
+	def __str__(self):
+		return str(f'Database created from {self.seeds} seeds file, has {Person.objects.all().count()} records')
 
 	def calculate_how_many_days_to_birthday(self, dob):
 		today = date.today()
@@ -28,9 +32,15 @@ class Database():
 
 	def create_database(self):
 		print('Please wait, database is creating...')
-		file = self.file['results']
-		for number, person in enumerate(file):
-			person = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
+		with open(self.seeds) as file:
+			lines = file.readlines()
+		#file = self.file['results']
+		for number, line in enumerate(lines):
+			#print('https://randomuser.me/api/'+'?seed='+line)
+			person_json = requests.get('https://randomuser.me/api/'+'?seed='+line).json()
+			#print(person)
+			person = person_json['results'][0]
+			person_record = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 							last=person['name']['last'], street_number=person['location']['street']['number'],
 							street_name=person['location']['street']['name'], city=person['location']['city'],
 							state=person['location']['state'], country=person['location']['country'],
@@ -50,8 +60,9 @@ class Database():
 							cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 							id_name=person['id']['name'], id_value=person['id']['value'],
 							thumbnail=person['picture']['thumbnail'], nat=person['nat'])
-			person.save()
+			person_record.save()
 			print(f'user number {number} has been created!')
+
 
 	def calculate_male_female_percentage(self):
 		female_counter = Person.objects.filter(gender='female').count()
@@ -155,14 +166,12 @@ class Database():
 		sorted_passwords = sorted(pointed_passwords.items(), key=lambda x: x[1], reverse=True)
 		return sorted_passwords
 
-	def __str__(self):
-		return str(f'Database created from {file.name} file, has {Person.objects.all().count()} records')
-
 
 if __name__ == '__main__':
-	with open('queries/persons.json') as file:
-		data = json.load(file)
-	DB = Database(data)
+	# with open('queries/persons.json') as file:
+	# 	data = json.load(file)
+	seeds = 'seeds.txt'
+	DB = Database(seeds)
 	my_parser = argparse.ArgumentParser()
 	my_parser.add_argument('task', action='store')
 	my_parser.add_argument('--arg', required=False)

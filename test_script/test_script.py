@@ -1,41 +1,24 @@
 import unittest
-import json
-from datetime import date, datetime
+import requests
 from script import *
 
 
 class TestDataBase(unittest.TestCase):
-	with open('persons.json') as file:
-		data = json.load(file)
+	global lines
 	global DB
-	DB = Database(data)
+	with open('seeds.txt') as file:
+		lines = file.readlines()
+	DB = Database('seeds.txt')
 
 	def test_database(self):
+		random_person = requests.get('https://randomuser.me/api/?seed=e5a40d7d4430daa1').json()
 
-		random_person = "{'gender': 'male', 'name': {'title': 'Mr', 'first': 'Eeli', 'last': 'Lehtonen'}, " \
-						"'location': {'street': {'number': 4609, 'name': 'Pyynikintie'}, 'city': 'Ruokolahti'," \
-						" 'state': 'Kainuu', 'country': 'Finland', 'postcode': 22940, " \
-						"'coordinates': {'latitude': '36.3772', 'longitude': '-168.6461'}," \
-						" 'timezone': {'offset': '-2:00', 'description': 'Mid-Atlantic'}}," \
-						" 'email': 'eeli.lehtonen@example.com', 'login': {'uuid': '580e2650-e197-412c-a1ea-175bb58bf78e'," \
-						" 'username': 'smallrabbit241', 'password': 'baylor', " \
-						"'salt': 'LZRcNjIr', 'md5': '4f0281a696b76156c592edac7f19250a', " \
-						"'sha1': '77f943e665bd331d92eef4fb17a9acabf948223e', " \
-						"'sha256': '21d4d2607f7254d5ab4a37feaa049a17c077bb50092bda8f327d2240d099716d'}, " \
-						"'dob': {'date': '1990-12-20T06:00:26.436Z', 'age': 30}, " \
-						"'registered': {'date': '2004-04-26T19:37:29.021Z', 'age': 16}, " \
-						"'phone': '08-691-135', 'cell': '045-288-48-87', " \
-						"'id': {'name': 'HETU', 'value': 'NaNNA945undefined'}, " \
-						"'picture': {'large': 'https://randomuser.me/api/portraits/men/37.jpg', " \
-						"'medium': 'https://randomuser.me/api/portraits/med/men/37.jpg', " \
-						"'thumbnail': 'https://randomuser.me/api/portraits/thumb/men/37.jpg'}, " \
-						"'nat': 'FI'},"
-
-		self.assertIn("gender", str(self.data))
-		self.assertIn(random_person, str(self.data))
-		self.assertIn('persons.json', str(self.file))
+		self.assertIn("gender", str(random_person))
+		self.assertIn('e5a40d7d4430daa1', str(random_person))
+		self.assertIn('Database created from seeds.txt seeds file, has 1000 records', str(DB))
+		self.assertIn('seeds.txt', str(self.file))
 		self.assertIsInstance(DB, Database)
-		self.assertEqual(len(self.data['results']), 1000)
+		self.assertEqual(len(lines), 1000)
 
 
 class TestFunctions(unittest.TestCase):
@@ -47,29 +30,29 @@ class TestFunctions(unittest.TestCase):
 
 	def test_calculate_male_female_percentage(self):
 		result = DB.calculate_male_female_percentage()
-		self.assertEqual(result, 'In database, there are 49.8% women and 50.2% men')
+		self.assertEqual(result, 'In database, there are 50.8% women and 49.2% men')
 
 	def test_calculate_average_age(self):
 		female = DB.calculate_average_age('female')
 		male = DB.calculate_average_age('male')
 		all = DB.calculate_average_age('all')
 		error = DB.calculate_average_age('mezczyzni')
-		self.assertIn('49.51', female)
-		self.assertIn('48.71', male)
-		self.assertIn('49.11', all)
+		self.assertIn('47.33', female)
+		self.assertIn('48.39', male)
+		self.assertIn('47.85', all)
 		self.assertEqual(error, 'Wrong argument! Please type: male, female or all')
 
 	def test_find_most_common_elements(self):
 		city_result = DB.find_most_common_elements('city', '10')
 		password_result = DB.find_most_common_elements('password', '10')
 		error_result = DB.find_most_common_elements('password', 'ten')
-		self.assertIn("'Toulon', 4", str(city_result))
-		self.assertIn("'surf', 3", str(password_result))
+		self.assertIn("'Dunedin', 5", str(city_result))
+		self.assertIn("'wifes', 3", str(password_result))
 		self.assertIn("ten is not a number! Input needs to be int type.", error_result)
 
 	def test_find_birthdays_between_dates(self):
 		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
-		self.assertIn("'Willard Terry': datetime.date(1965, 3, 27)", str(dates))
+		self.assertIn("'Emil Nielsen': datetime.date(1954, 11, 3)", str(dates))
 
 	def test_calculate_safety_points_of_password(self):
 		password_safety_one = DB.calculate_safety_points_of_password('easypassword')
@@ -82,9 +65,9 @@ class TestFunctions(unittest.TestCase):
 
 	def test_check_people_passwords(self):
 		safety_result = DB.check_people_passwords()
-		self.assertIn("('scooter1', 7)", str(safety_result))
+		self.assertIn("('close-up', 9)", str(safety_result))
 		self.assertNotIn("('latwehaselko', 69)", str(safety_result))
-		self.assertIn("('overlord', 6)", str(safety_result))
+		self.assertIn("('bigboobs', 6)", str(safety_result))
 		# ONLY UNIQUE PASSWORDS
-		self.assertEqual(len(safety_result), 942)
+		self.assertEqual(len(safety_result), 937)
 
