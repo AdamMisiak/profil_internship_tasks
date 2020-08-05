@@ -104,24 +104,21 @@ class Database():
 				else:
 					unique_elements[searching_element] = 1
 			sorted_unique_elements = sorted(unique_elements.items(), key=lambda x: x[1], reverse=True)
-
-			for element in sorted_unique_elements[:int(quantity)]:
-				print(element[0], element[1])
-				return sorted_unique_elements
-
+			sorted_unique_elements = sorted_unique_elements[:int(quantity)]
+			return sorted_unique_elements
 		else:
-			print(f'{quantity} is not a number! Input needs to be int type.')
 			return f'{quantity} is not a number! Input needs to be int type.'
 
 	def find_birthdays_between_dates(self, start_date, end_date):
 		all_people = Person.objects.all()
+		result_dict = {}
 		start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
 		end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
-		print(f'List of people with birthday between {start_date_conv} and {end_date_conv}:')
 		for person in all_people:
 			dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 			if start_date_conv < dob < end_date_conv:
-				print(f'Person "{person.first} {person.last}" has birthday on: {dob}')
+				result_dict[person.first+' '+person.last] = dob
+		return result_dict
 
 	def calculate_safety_points_of_password(self, password):
 		is_lower_flag = False
@@ -157,12 +154,11 @@ class Database():
 			pointed_passwords[password] = points
 
 		sorted_passwords = sorted(pointed_passwords.items(), key=lambda x: x[1], reverse=True)
-		for password in sorted_passwords:
-			print(f'Password "{password[0]}" scores {password[1]} points for security')
+		return sorted_passwords
 
 	def __str__(self):
 		return str(f'Database created from {file.name} file, has {Person.objects.all().count()} records')
-
+	
 
 if __name__ == '__main__':
 	with open('queries/persons.json') as file:
@@ -180,13 +176,31 @@ if __name__ == '__main__':
 	elif args.task == 'average-age':
 		print(DB.calculate_average_age(args.arg))
 	elif args.task == 'most-common-cities':
-		DB.find_most_common_elements('city', args.arg)
+		try:
+			results_cities = DB.find_most_common_elements('city', args.arg)
+			for element in results_cities:
+				print(element[0], element[1])
+		except:
+			print(f'{args.arg} is not a number! Input needs to be int type.')
+
 	elif args.task == 'most-common-passwords':
-		DB.find_most_common_elements('password', args.arg)
+		try:
+			results_passwords = DB.find_most_common_elements('password', args.arg)
+			for element in results_passwords:
+				print(element[0], element[1])
+		except:
+			print(f'{args.arg} is not a number! Input needs to be int type.')
+
 	elif args.task == 'dob-between':
-		DB.find_birthdays_between_dates(args.start, args.end)
+		results_dates = DB.find_birthdays_between_dates(args.start, args.end)
+		for element in results_dates.items():
+			print(element[0], element[1])
+
 	elif args.task == 'safety-of-passwords':
-		DB.check_people_passwords()
+		results_passwords = DB.check_people_passwords()
+		for element in results_passwords:
+			print(element[0], element[1])
+
 	elif args.task == 'create-db':
 		DB.create_database()
 	else:

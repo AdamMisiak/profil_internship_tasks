@@ -65,3 +65,10 @@ class TestFunctions(unittest.TestCase):
 		self.assertIn("'Toulon', 5", str(city_result))
 		self.assertIn("'r2d2', 2", str(password_result))
 		self.assertIn("ten is not a number! Input needs to be int type.", error_result)
+
+	def test_find_birthdays_between_dates(self):
+		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
+		self.assertIn("'Willard Terry': datetime.date(1965, 3, 27)", str(dates))
+
+
+		#OGARNAC ZBEY NIE PRINTOWAL W TESTACH WSZYSTKIEGO TYLKO RETURN
