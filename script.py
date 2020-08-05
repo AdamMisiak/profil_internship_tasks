@@ -4,20 +4,19 @@ import argparse
 from django.apps import apps
 from datetime import date, datetime
 import os
-
 os.environ['DJANGO_SETTINGS_MODULE'] = 'profil_intern.settings'
 django.setup()
 Person = apps.get_model('queries', 'Person')
-
 
 class Database():
 	def __init__(self, file):
 		self.file = file
 
-	def calculate_how_many_days_to_birthday(self, dob, age):
+	def calculate_how_many_days_to_birthday(self, dob):
 		today = date.today()
 		dob = dob[:10].replace('-', '/')
 		date_of_birthday = datetime.strptime(dob, '%Y/%m/%d').date()
+		age = today.year - date_of_birthday.year
 		date_of_birthday_this_year = date_of_birthday.replace(year=date_of_birthday.year + age)
 		days_to_birthday = (date_of_birthday_this_year - today).days
 		if days_to_birthday < 0:
@@ -30,7 +29,7 @@ class Database():
 	def create_database(self):
 		print('Please wait, database is creating...')
 		file = self.file['results']
-		for person in file:
+		for number, person in enumerate(file):
 			person = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 							last=person['name']['last'], street_number=person['location']['street']['number'],
 							street_name=person['location']['street']['name'], city=person['location']['city'],
@@ -45,14 +44,14 @@ class Database():
 							password_md5=person['login']['md5'], password_sha1=person['login']['sha1'],
 							password_sha256=person['login']['sha256'], dob=person['dob']['date'],
 							age=person['dob']['age'], registered_date=person['registered']['date'],
-							days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date'],
-																					  person['dob']['age']),
+							days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date']),
 							registered_age=person['registered']['age'],
 							phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 							cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
 							id_name=person['id']['name'], id_value=person['id']['value'],
 							thumbnail=person['picture']['thumbnail'], nat=person['nat'])
 			person.save()
+			print(f'user number {number} has been created!')
 
 	def calculate_male_female_percentage(self):
 		female_counter = Person.objects.filter(gender='female').count()
@@ -90,7 +89,7 @@ class Database():
 			result = 'Wrong argument! Please type: male, female or all'
 		return result
 
-	def find_most_common_elements(self, searching_element_input, quantity=5):
+	def find_most_common_elements(self, searching_element_input, quantity='5'):
 		all_people = Person.objects.all()
 		if quantity.isnumeric():
 			unique_elements = {}
@@ -105,22 +104,21 @@ class Database():
 				else:
 					unique_elements[searching_element] = 1
 			sorted_unique_elements = sorted(unique_elements.items(), key=lambda x: x[1], reverse=True)
-
-			for element in sorted_unique_elements[:int(quantity)]:
-				print(element[0], element[1])
+			sorted_unique_elements = sorted_unique_elements[:int(quantity)]
+			return sorted_unique_elements
 		else:
-			print(f'{quantity} is not a number! Input needs to be int type.')
-
+			return f'{quantity} is not a number! Input needs to be int type.'
 
 	def find_birthdays_between_dates(self, start_date, end_date):
 		all_people = Person.objects.all()
+		result_dict = {}
 		start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
 		end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
-		print(f'List of people with birthday between {start_date_conv} and {end_date_conv}:')
 		for person in all_people:
 			dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 			if start_date_conv < dob < end_date_conv:
-				print(f'Person "{person.first} {person.last}" has birthday on: {dob}')
+				result_dict[person.first+' '+person.last] = dob
+		return result_dict
 
 	def calculate_safety_points_of_password(self, password):
 		is_lower_flag = False
@@ -154,38 +152,56 @@ class Database():
 		for person in all_people:
 			password, points = self.calculate_safety_points_of_password(person.password)
 			pointed_passwords[password] = points
-
 		sorted_passwords = sorted(pointed_passwords.items(), key=lambda x: x[1], reverse=True)
-		for password in sorted_passwords:
-			print(f'Password "{password[0]}" scores {password[1]} points for security')
+		return sorted_passwords
 
 	def __str__(self):
-		return str(f'Database created from persons.json file, has {Person.objects.all().count()} records')
+		return str(f'Database created from {file.name} file, has {Person.objects.all().count()} records')
 
 
-with open('queries/persons.json') as file:
-	data = json.load(file)
-DB = Database(data)
-my_parser = argparse.ArgumentParser()
-my_parser.add_argument('task', action='store')
-my_parser.add_argument('--arg', required=False)
-my_parser.add_argument('--start', required=False)
-my_parser.add_argument('--end', required=False)
-args = my_parser.parse_args()
+if __name__ == '__main__':
+	with open('queries/persons.json') as file:
+		data = json.load(file)
+	DB = Database(data)
+	my_parser = argparse.ArgumentParser()
+	my_parser.add_argument('task', action='store')
+	my_parser.add_argument('--arg', required=False)
+	my_parser.add_argument('--start', required=False)
+	my_parser.add_argument('--end', required=False)
+	args = my_parser.parse_args()
 
-if args.task == 'male-female-percentage':
-	print(DB.calculate_male_female_percentage())
-elif args.task == 'average-age':
-	print(DB.calculate_average_age(args.arg))
-elif args.task == 'most-common-cities':
-	DB.find_most_common_elements('city', args.arg)
-elif args.task == 'most-common-passwords':
-	DB.find_most_common_elements('password', args.arg)
-elif args.task == 'dob-between':
-	DB.find_birthdays_between_dates(args.start, args.end)
-elif args.task == 'safety-of-passwords':
-	DB.check_people_passwords()
-elif args.task == 'create-db':
-	DB.create_database()
-else:
-	print('There is no such command! Check README.md file for available commands')
+	if args.task == 'male-female-percentage':
+		print(DB.calculate_male_female_percentage())
+	elif args.task == 'average-age':
+		print(DB.calculate_average_age(args.arg))
+	elif args.task == 'most-common-cities':
+		try:
+			result_cities = DB.find_most_common_elements('city', args.arg)
+			for element in result_cities:
+				print(element[0], element[1])
+		except:
+			print(f'{args.arg} is not a number! Input needs to be int type.')
+
+	elif args.task == 'most-common-passwords':
+		try:
+			result_passwords = DB.find_most_common_elements('password', args.arg)
+			for element in result_passwords:
+				print(element[0], element[1])
+		except:
+			print(f'{args.arg} is not a number! Input needs to be int type.')
+
+	elif args.task == 'dob-between':
+		result_dates = DB.find_birthdays_between_dates(args.start, args.end)
+		for element in result_dates.items():
+			print(element[0], element[1])
+
+	elif args.task == 'safety-of-passwords':
+		result_passwords = DB.check_people_passwords()
+		for element in result_passwords:
+			print(element[0], element[1])
+
+	elif args.task == 'create-db':
+		DB.create_database()
+	else:
+		print('There is no such command! Check README.md file for available commands')
+
