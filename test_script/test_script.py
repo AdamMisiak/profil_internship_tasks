@@ -1,5 +1,6 @@
 import unittest
 import json
+from datetime import date, datetime
 from script import *
 
 
@@ -42,7 +43,8 @@ class TestFunctions(unittest.TestCase):
 	def test_calculate_how_many_days_to_birthday(self):
 		days_to_birthday = DB.calculate_how_many_days_to_birthday('1970-04-08')
 		self.assertNotEqual(days_to_birthday, 42)
-		self.assertEqual(days_to_birthday, 247)
+		# CHECK YOUR DATE AT: https://www.kalendarzswiat.pl/kalkulator_urodzinowy
+		self.assertEqual(days_to_birthday, 246)
 
 	def test_calculate_male_female_percentage(self):
 		result = DB.calculate_male_female_percentage()
@@ -70,5 +72,20 @@ class TestFunctions(unittest.TestCase):
 		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
 		self.assertIn("'Willard Terry': datetime.date(1965, 3, 27)", str(dates))
 
+	def test_calculate_safety_points_of_password(self):
+		password_safety_one = DB.calculate_safety_points_of_password('easypassword')
+		password_safety_two = DB.calculate_safety_points_of_password('Mediumpa55')
+		password_safety_three = DB.calculate_safety_points_of_password('H@rdP@55w0RD')
 
-		#OGARNAC ZBEY NIE PRINTOWAL W TESTACH WSZYSTKIEGO TYLKO RETURN
+		self.assertIn("('easypassword', 6)", str(password_safety_one))
+		self.assertIn("('Mediumpa55', 9)", str(password_safety_two))
+		self.assertIn("('H@rdP@55w0RD', 12)", str(password_safety_three))
+
+	def test_check_people_passwords(self):
+		safety_result = DB.check_people_passwords()
+		self.assertIn("('scooter1', 7)", str(safety_result))
+		self.assertNotIn("('latwehaselko', 69)", str(safety_result))
+		self.assertIn("('overlord', 6)", str(safety_result))
+		# ONLY UNIQUE PASSWORDS
+		self.assertEqual(len(safety_result), 942)
+
