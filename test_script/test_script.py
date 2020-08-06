@@ -4,21 +4,17 @@ from script import *
 
 
 class TestDataBase(unittest.TestCase):
-	global lines
 	global DB
-	with open('seeds.txt') as file:
-		lines = file.readlines()
-	DB = Database('seeds.txt')
+	seed = 'ec14fa7f0b8242e0'
+	DB = Database(seed, 1000)
 
 	def test_database(self):
-		random_person = requests.get('https://randomuser.me/api/?seed=e5a40d7d4430daa1').json()
+		random_person = requests.get('https://randomuser.me/api/?results=1000&seed=ec14fa7f0b8242e0').json()
 
 		self.assertIn("gender", str(random_person))
-		self.assertIn('e5a40d7d4430daa1', str(random_person))
-		self.assertIn('Database created from seeds.txt seeds file, has 1000 records', str(DB))
-		self.assertIn('seeds.txt', str(self.file))
+		self.assertIn('ec14fa7f0b8242e0', str(random_person))
+		self.assertIn('Database created from ec14fa7f0b8242e0 seed, has 1000 records', str(DB))
 		self.assertIsInstance(DB, Database)
-		self.assertEqual(len(lines), 1000)
 
 
 class TestFunctions(unittest.TestCase):
@@ -26,33 +22,33 @@ class TestFunctions(unittest.TestCase):
 		days_to_birthday = DB.calculate_how_many_days_to_birthday('1970-04-08')
 		self.assertNotEqual(days_to_birthday, 42)
 		# CHECK YOUR DATE AT: https://www.kalendarzswiat.pl/kalkulator_urodzinowy
-		self.assertEqual(days_to_birthday, 246)
+		self.assertEqual(days_to_birthday, 245)
 
 	def test_calculate_male_female_percentage(self):
 		result = DB.calculate_male_female_percentage()
-		self.assertEqual(result, 'In database, there are 50.8% women and 49.2% men')
+		self.assertEqual(result, 'In database, there are 50.4% women and 49.6% men')
 
 	def test_calculate_average_age(self):
 		female = DB.calculate_average_age('female')
 		male = DB.calculate_average_age('male')
 		all = DB.calculate_average_age('all')
 		error = DB.calculate_average_age('mezczyzni')
-		self.assertIn('47.33', female)
-		self.assertIn('48.39', male)
-		self.assertIn('47.85', all)
+		self.assertIn('47.94', female)
+		self.assertIn('48.85', male)
+		self.assertIn('48.39', all)
 		self.assertEqual(error, 'Wrong argument! Please type: male, female or all')
 
 	def test_find_most_common_elements(self):
 		city_result = DB.find_most_common_elements('city', '10')
 		password_result = DB.find_most_common_elements('password', '10')
 		error_result = DB.find_most_common_elements('password', 'ten')
-		self.assertIn("'Dunedin', 5", str(city_result))
-		self.assertIn("'wifes', 3", str(password_result))
+		self.assertIn("'Hamilton', 7", str(city_result))
+		self.assertIn("'milton', 2", str(password_result))
 		self.assertIn("ten is not a number! Input needs to be int type.", error_result)
 
 	def test_find_birthdays_between_dates(self):
 		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
-		self.assertIn("'Emil Nielsen': datetime.date(1954, 11, 3)", str(dates))
+		self.assertIn("'Harley Wang': datetime.date(1961, 2, 5)", str(dates))
 
 	def test_calculate_safety_points_of_password(self):
 		password_safety_one = DB.calculate_safety_points_of_password('easypassword')
@@ -65,9 +61,9 @@ class TestFunctions(unittest.TestCase):
 
 	def test_check_people_passwords(self):
 		safety_result = DB.check_people_passwords()
-		self.assertIn("('close-up', 9)", str(safety_result))
+		self.assertIn("('madison1', 7)", str(safety_result))
 		self.assertNotIn("('latwehaselko', 69)", str(safety_result))
-		self.assertIn("('bigboobs', 6)", str(safety_result))
+		self.assertIn("('penetration', 6)", str(safety_result))
 		# ONLY UNIQUE PASSWORDS
-		self.assertEqual(len(safety_result), 937)
+		self.assertEqual(len(safety_result), 934)
 
