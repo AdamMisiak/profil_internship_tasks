@@ -10,11 +10,12 @@ django.setup()
 Person = apps.get_model('queries', 'Person')
 
 class Database():
-	def __init__(self, seeds):
-		self.seeds = seeds
+	def __init__(self, seed, number):
+		self.seed = seed
+		self.number = number
 
 	def __str__(self):
-		return str(f'Database created from {self.seeds} seeds file, has {Person.objects.all().count()} records')
+		return str(f'Database created from {self.seed} seed, has {Person.objects.all().count()} records')
 
 	def calculate_how_many_days_to_birthday(self, dob):
 		today = date.today()
@@ -32,14 +33,11 @@ class Database():
 
 	def create_database(self):
 		print('Please wait, database is creating...')
-		with open(self.seeds) as file:
-			lines = file.readlines()
-		#file = self.file['results']
-		for number, line in enumerate(lines):
-			#print('https://randomuser.me/api/'+'?seed='+line)
-			person_json = requests.get('https://randomuser.me/api/'+'?seed='+line).json()
-			#print(person)
-			person = person_json['results'][0]
+		people_json = requests.get(
+			'https://randomuser.me/api/' + '?results=' + str(self.number) + '&seed=' + str(self.seed)).json()['results']
+		#people_json = people_json['results']
+
+		for number, person in enumerate(people_json):
 			person_record = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
 							last=person['name']['last'], street_number=person['location']['street']['number'],
 							street_name=person['location']['street']['name'], city=person['location']['city'],
@@ -168,10 +166,9 @@ class Database():
 
 
 if __name__ == '__main__':
-	# with open('queries/persons.json') as file:
-	# 	data = json.load(file)
-	seeds = 'seeds.txt'
-	DB = Database(seeds)
+	# SEED FOR SAME RECORDS EVERY TIME
+	seed = 'ec14fa7f0b8242e0'
+	DB = Database(seed, 1000)
 	my_parser = argparse.ArgumentParser()
 	my_parser.add_argument('task', action='store')
 	my_parser.add_argument('--arg', required=False)
