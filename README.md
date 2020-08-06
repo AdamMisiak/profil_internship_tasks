@@ -22,6 +22,11 @@ To install requirements:
 pip install -r requirements.txt
 ```
 
+To migrate database:
+```
+python manage.py migrate
+```
+
 To create database:
 ```
 python script.py create-db
