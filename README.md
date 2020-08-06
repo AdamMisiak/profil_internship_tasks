@@ -56,6 +56,18 @@ To get descending list of the safest passwords:
 ```
 python script.py safety-of-passwords
 ```
+To delete error:
+```
+django.db.utils.OperationalError: no such table: queries_person
+```
+or
+```
+sqlite3.OperationalError: no such table: queries_person
+```
+Use:
+```
+python manage.py migrate
+```
 
 To run tests:
 ```
