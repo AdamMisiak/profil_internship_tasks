@@ -7,6 +7,7 @@ class TestDataBase(unittest.TestCase):
 	global DB
 	seed = 'ec14fa7f0b8242e0'
 	DB = Database(seed, 1000)
+	#DB.create_database()
 
 	def test_database(self):
 		random_person = requests.get('https://randomuser.me/api/?results=1000&seed=ec14fa7f0b8242e0').json()
@@ -21,8 +22,6 @@ class TestFunctions(unittest.TestCase):
 	def test_calculate_how_many_days_to_birthday(self):
 		days_to_birthday = DB.calculate_how_many_days_to_birthday('1970-04-08')
 		self.assertNotEqual(days_to_birthday, 42)
-		# CHECK YOUR DATE AT: https://www.kalendarzswiat.pl/kalkulator_urodzinowy
-		self.assertEqual(days_to_birthday, 245)
 
 	def test_calculate_male_female_percentage(self):
 		result = DB.calculate_male_female_percentage()

@@ -1,5 +1,4 @@
 import django
-import json
 import argparse
 import requests
 from django.apps import apps
@@ -35,7 +34,6 @@ class Database():
 		print('Please wait, database is creating...')
 		people_json = requests.get(
 			'https://randomuser.me/api/' + '?results=' + str(self.number) + '&seed=' + str(self.seed)).json()['results']
-		#people_json = people_json['results']
 
 		for number, person in enumerate(people_json):
 			person_record = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
@@ -60,7 +58,6 @@ class Database():
 							thumbnail=person['picture']['thumbnail'], nat=person['nat'])
 			person_record.save()
 			print(f'user number {number} has been created!')
-
 
 	def calculate_male_female_percentage(self):
 		female_counter = Person.objects.filter(gender='female').count()
