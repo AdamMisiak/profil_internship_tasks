@@ -7,6 +7,9 @@ Tasks created for back-end intern in Profil Software company.
 * [Technologies](#technologies)
 * [Setup](#setup)
 * [Contact](#contact)
+* [Commands](#commands)
+* [Errors](#errors)
+* [Tests](#tests)
 
 ## Technologies
 * Python version: 3.7
@@ -26,6 +29,8 @@ To migrate database:
 ```
 python manage.py migrate
 ```
+
+## Commands
 
 To create database:
 ```
@@ -61,7 +66,10 @@ To get descending list of the safest passwords:
 ```
 python script.py safety-of-passwords
 ```
-To delete error:
+
+## Errors
+
+After starting application and using 'create-db' command, you can see this error:
 ```
 django.db.utils.OperationalError: no such table: queries_person
 ```
@@ -69,10 +77,11 @@ or
 ```
 sqlite3.OperationalError: no such table: queries_person
 ```
-Use:
+Use to delete errors:
 ```
 python manage.py migrate
 ```
+## Tests
 
 To run tests:
 ```
