@@ -111,9 +111,12 @@ class Database():
 					unique_elements[searching_element] = 1
 			sorted_unique_elements = sorted(unique_elements.items(), key=lambda x: x[1], reverse=True)
 			sorted_unique_elements = sorted_unique_elements[:int(quantity)]
+			if int(quantity) > all_people.count():
+				return f'{quantity} is too big! In database there are only {all_people.count()} people.'
 			return sorted_unique_elements
 		else:
 			return f'{quantity} is not a number! Input needs to be int type.'
+
 
 	def find_birthdays_between_dates(self, start_date, end_date):
 		all_people = Person.objects.all()
@@ -183,7 +186,7 @@ if __name__ == '__main__':
 			for element in result_cities:
 				print(element[0], element[1])
 		except:
-			print(f'{args.arg} is not a number! Input needs to be int type.')
+			print(DB.find_most_common_elements('city', args.arg))
 
 	elif args.task == 'most-common-passwords':
 		try:
@@ -191,7 +194,7 @@ if __name__ == '__main__':
 			for element in result_passwords:
 				print(element[0], element[1])
 		except:
-			print(f'{args.arg} is not a number! Input needs to be int type.')
+			print(DB.find_most_common_elements('password', args.arg))
 
 	elif args.task == 'dob-between':
 		result_dates = DB.find_birthdays_between_dates(args.start, args.end)
