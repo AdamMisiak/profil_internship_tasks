@@ -4,9 +4,11 @@ import requests
 from django.apps import apps
 from datetime import date, datetime
 import os
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'profil_intern.settings'
 django.setup()
 Person = apps.get_model('queries', 'Person')
+
 
 class Database():
 	def __init__(self, seed, number):
@@ -33,29 +35,35 @@ class Database():
 	def create_database(self):
 		print('Please wait, database is creating...')
 		people_json = requests.get(
-			'https://randomuser.me/api/' + '?results=' + str(self.number) + '&seed=' + str(self.seed)).json()['results']
+			'https://randomuser.me/api/'
+			+ '?results='
+			+ str(self.number)
+			+ '&seed='
+			+ str(self.seed)).json()['results']
 
 		for number, person in enumerate(people_json):
-			person_record = Person(gender=person['gender'], title=person['name']['title'], first=person['name']['first'],
-							last=person['name']['last'], street_number=person['location']['street']['number'],
-							street_name=person['location']['street']['name'], city=person['location']['city'],
-							state=person['location']['state'], country=person['location']['country'],
-							postcode=person['location']['postcode'],
-							latitude=person['location']['coordinates']['latitude'],
-							longitude=person['location']['coordinates']['latitude'],
-							timezone_offset=person['location']['timezone']['offset'],
-							timezone_description=person['location']['timezone']['description'], email=person['email'],
-							login_uuid=person['login']['uuid'], username=person['login']['username'],
-							password=person['login']['password'], password_salt=person['login']['salt'],
-							password_md5=person['login']['md5'], password_sha1=person['login']['sha1'],
-							password_sha256=person['login']['sha256'], dob=person['dob']['date'],
-							age=person['dob']['age'], registered_date=person['registered']['date'],
-							days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date']),
-							registered_age=person['registered']['age'],
-							phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
-							cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
-							id_name=person['id']['name'], id_value=person['id']['value'],
-							thumbnail=person['picture']['thumbnail'], nat=person['nat'])
+			person_record = Person(
+				gender=person['gender'], title=person['name']['title'],
+				first=person['name']['first'], last=person['name']['last'],
+				street_number=person['location']['street']['number'],
+				street_name=person['location']['street']['name'], city=person['location']['city'],
+				state=person['location']['state'], country=person['location']['country'],
+				postcode=person['location']['postcode'],
+				latitude=person['location']['coordinates']['latitude'],
+				longitude=person['location']['coordinates']['latitude'],
+				timezone_offset=person['location']['timezone']['offset'],
+				timezone_description=person['location']['timezone']['description'], email=person['email'],
+				login_uuid=person['login']['uuid'], username=person['login']['username'],
+				password=person['login']['password'], password_salt=person['login']['salt'],
+				password_md5=person['login']['md5'], password_sha1=person['login']['sha1'],
+				password_sha256=person['login']['sha256'], dob=person['dob']['date'],
+				age=person['dob']['age'], registered_date=person['registered']['date'],
+				days_to_birthday=self.calculate_how_many_days_to_birthday(person['dob']['date']),
+				registered_age=person['registered']['age'],
+				phone=person['phone'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
+				cell=person['cell'].replace('-', '').replace(' ', '').replace('(', '').replace(')', ''),
+				id_name=person['id']['name'], id_value=person['id']['value'],
+				thumbnail=person['picture']['thumbnail'], nat=person['nat'])
 			person_record.save()
 			print(f'user number {number} has been created!')
 
@@ -130,7 +138,7 @@ class Database():
 		for person in all_people:
 			dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 			if start_date_conv < dob < end_date_conv:
-				result_dict[person.first+' '+person.last] = dob
+				result_dict[person.first + ' ' + person.last] = dob
 		return result_dict
 
 	def calculate_safety_points_of_password(self, password):
@@ -217,4 +225,3 @@ if __name__ == '__main__':
 		DB.create_database()
 	else:
 		print('There is no such command! Check README.md file for available commands')
-
