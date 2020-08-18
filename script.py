@@ -117,12 +117,16 @@ class Database():
 		else:
 			return f'{quantity} is not a number! Input needs to be int type.'
 
-
 	def find_birthdays_between_dates(self, start_date, end_date):
 		all_people = Person.objects.all()
 		result_dict = {}
-		start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
-		end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
+		try:
+			start_date_conv = datetime.strptime(start_date, '%Y/%m/%d').date()
+			end_date_conv = datetime.strptime(end_date, '%Y/%m/%d').date()
+		except ValueError:
+			return 'Date format needs to be YYYY/mm/dd (for example 2137/05/04)!'
+		if (end_date_conv - start_date_conv).days < 0:
+			return f'First date needs to be earlier then second one!'
 		for person in all_people:
 			dob = datetime.strptime(person.dob[: 10].replace('-', '/'), '%Y/%m/%d').date()
 			if start_date_conv < dob < end_date_conv:
@@ -197,9 +201,12 @@ if __name__ == '__main__':
 			print(DB.find_most_common_elements('password', args.arg))
 
 	elif args.task == 'dob-between':
-		result_dates = DB.find_birthdays_between_dates(args.start, args.end)
-		for element in result_dates.items():
-			print(element[0], element[1])
+		try:
+			result_dates = DB.find_birthdays_between_dates(args.start, args.end)
+			for element in result_dates.items():
+				print(element[0], element[1])
+		except:
+			print(DB.find_birthdays_between_dates(args.start, args.end))
 
 	elif args.task == 'safety-of-passwords':
 		result_passwords = DB.check_people_passwords()

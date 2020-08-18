@@ -41,13 +41,19 @@ class TestFunctions(unittest.TestCase):
 		city_result = DB.find_most_common_elements('city', '10')
 		password_result = DB.find_most_common_elements('password', '10')
 		error_result = DB.find_most_common_elements('password', 'ten')
+		too_long_result = DB.find_most_common_elements('password', '5555')
 		self.assertIn("'Hamilton', 7", str(city_result))
 		self.assertIn("'milton', 2", str(password_result))
 		self.assertIn("ten is not a number! Input needs to be int type.", error_result)
+		self.assertIn("5555 is too big! In database there are only 1000 people.", too_long_result)
 
 	def test_find_birthdays_between_dates(self):
 		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
+		wrong_dates = DB.find_birthdays_between_dates('1970/05/05', '1950/05/05')
+		no_numbers_dates = DB.find_birthdays_between_dates('1970/05/05g', '1950/05/05q')
 		self.assertIn("'Harley Wang': datetime.date(1961, 2, 5)", str(dates))
+		self.assertIn("First date needs to be earlier then second one!", wrong_dates)
+		self.assertIn("Date format needs to be YYYY/mm/dd (for example 2137/05/04)!", no_numbers_dates)
 
 	def test_calculate_safety_points_of_password(self):
 		password_safety_one = DB.calculate_safety_points_of_password('easypassword')
