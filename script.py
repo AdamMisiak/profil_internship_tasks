@@ -20,7 +20,8 @@ class Database:
             f"Database created from {self.seed} seed, has {Person.objects.all().count()} records"
         )
 
-    def calculate_how_many_days_to_birthday(self, dob):
+    @staticmethod
+    def calculate_how_many_days_to_birthday(dob):
         today = date.today()
         dob = dob[:10].replace("-", "/")
         date_of_birthday = datetime.strptime(dob, "%Y/%m/%d").date()
@@ -95,7 +96,8 @@ class Database:
             person_record.save()
             print(f"user number {number} has been created!")
 
-    def calculate_male_female_percentage(self):
+    @staticmethod
+    def calculate_male_female_percentage():
         female_counter = Person.objects.filter(gender="female").count()
         male_counter = Person.objects.filter(gender="male").count()
         percentage_f = round(
@@ -105,7 +107,8 @@ class Database:
         result = f"In database, there are {percentage_f}% women and {percentage_m}% men"
         return result
 
-    def calculate_average_age(self, sex):
+    @staticmethod
+    def calculate_average_age(sex):
         all_people = Person.objects.all()
         age_list = [person.age for person in all_people]
         age_list_male = [person.age for person in all_people if person.gender == "male"]
@@ -135,7 +138,8 @@ class Database:
             result = "Wrong argument! Please type: male, female or all"
         return result
 
-    def find_most_common_elements(self, searching_element_input, quantity="5"):
+    @staticmethod
+    def find_most_common_elements(searching_element_input, quantity="5"):
         all_people = Person.objects.all()
         if quantity.isnumeric():
             unique_elements = {}
@@ -161,7 +165,8 @@ class Database:
         else:
             return f"{quantity} is not a number! Input needs to be int type."
 
-    def find_birthdays_between_dates(self, start_date, end_date):
+    @staticmethod
+    def find_birthdays_between_dates(start_date, end_date):
         all_people = Person.objects.all()
         result_dict = {}
         try:
@@ -179,7 +184,8 @@ class Database:
                 result_dict[person.first + " " + person.last] = dob
         return result_dict
 
-    def calculate_safety_points_of_password(self, password):
+    @staticmethod
+    def calculate_safety_points_of_password(password):
         is_lower_flag = False
         is_upper_flag = False
         is_numeric_flag = False
