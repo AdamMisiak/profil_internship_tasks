@@ -109,11 +109,10 @@ class Database:
 
     @staticmethod
     def calculate_average_age(sex):
-        all_people = Person.objects.all()
-        age_list = [person.age for person in all_people]
-        age_list_male = [person.age for person in all_people if person.gender == "male"]
+        age_list = [person.age for person in Person.objects.all()]
+        age_list_male = [person.age for person in Person.objects.filter(gender="male")]
         age_list_female = [
-            person.age for person in all_people if person.gender == "female"
+            person.age for person in Person.objects.filter(gender="female")
         ]
 
         age_sum = sum(age_list)
