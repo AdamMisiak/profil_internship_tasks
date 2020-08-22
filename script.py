@@ -1,6 +1,7 @@
 import django
 import argparse
 import requests
+import statistics
 from django.apps import apps
 from datetime import date, datetime
 import os
@@ -109,23 +110,13 @@ class Database:
 
     @staticmethod
     def calculate_average_age(sex):
-        age_list = [person.age for person in Person.objects.all()]
-        age_list_male = [person.age for person in Person.objects.filter(gender="male")]
-        age_list_female = [
-            person.age for person in Person.objects.filter(gender="female")
-        ]
+        age_list = Person.objects.all().values_list('age', flat=True)
+        age_list_male = Person.objects.filter(gender="male").values_list('age', flat=True)
+        age_list_female = Person.objects.filter(gender="female").values_list('age', flat=True)
 
-        age_sum = sum(age_list)
-        age_sum_male = sum(age_list_male)
-        age_sum_female = sum(age_list_female)
-
-        people_counter = len(age_list)
-        male_counter = len(age_list_male)
-        female_counter = len(age_list_female)
-
-        average_all = round(age_sum / people_counter, 2)
-        average_male = round(age_sum_male / male_counter, 2)
-        average_female = round(age_sum_female / female_counter, 2)
+        average_all = round(statistics.mean(age_list), 2)
+        average_male = round(statistics.mean(age_list_male), 2)
+        average_female = round(statistics.mean(age_list_female), 2)
 
         if sex == "male":
             result = f"Average age for men is {average_male} years"
@@ -166,6 +157,8 @@ class Database:
 
     @staticmethod
     def find_birthdays_between_dates(start_date, end_date):
+        # USE EXTRA FROM DJANGO ORM!
+        # USE DATA FROM ORM
         all_people = Person.objects.all()
         result_dict = {}
         try:
