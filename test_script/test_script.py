@@ -51,7 +51,7 @@ class TestFunctions(unittest.TestCase):
 		dates = DB.find_birthdays_between_dates('1950/05/05', '1970/06/06')
 		wrong_dates = DB.find_birthdays_between_dates('1970/05/05', '1950/05/05')
 		no_numbers_dates = DB.find_birthdays_between_dates('1970/05/05g', '1950/05/05q')
-		self.assertIn("'Harley Wang': datetime.date(1961, 2, 5)", str(dates))
+		self.assertIn("{'Harley Wang': '1961/02/05'", str(dates))
 		self.assertIn("First date needs to be earlier then second one!", wrong_dates)
 		self.assertIn("Date format needs to be YYYY/mm/dd (for example 2137/05/04)!", no_numbers_dates)
 

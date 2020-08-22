@@ -157,9 +157,6 @@ class Database:
 
     @staticmethod
     def find_birthdays_between_dates(start_date, end_date):
-        # USE EXTRA FROM DJANGO ORM!
-        # USE DATA FROM ORM
-        all_people = Person.objects.all()
         result_dict = {}
         try:
             start_date_conv = datetime.strptime(start_date, "%Y/%m/%d").date()
@@ -168,12 +165,9 @@ class Database:
             return "Date format needs to be YYYY/mm/dd (for example 2137/05/04)!"
         if (end_date_conv - start_date_conv).days < 0:
             return f"First date needs to be earlier then second one!"
-        for person in all_people:
-            dob = datetime.strptime(
-                person.dob[:10].replace("-", "/"), "%Y/%m/%d"
-            ).date()
-            if start_date_conv < dob < end_date_conv:
-                result_dict[person.first + " " + person.last] = dob
+        for person_date in Person.objects.filter(dob__range=(start_date_conv, end_date_conv)):
+            dob = person_date.dob[:10].replace("-", "/")
+            result_dict[person_date.first + " " + person_date.last] = dob
         return result_dict
 
     @staticmethod
