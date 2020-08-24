@@ -110,9 +110,13 @@ class Database:
 
     @staticmethod
     def calculate_average_age(sex):
-        age_list = Person.objects.all().values_list('age', flat=True)
-        age_list_male = Person.objects.filter(gender="male").values_list('age', flat=True)
-        age_list_female = Person.objects.filter(gender="female").values_list('age', flat=True)
+        age_list = Person.objects.all().values_list("age", flat=True)
+        age_list_male = Person.objects.filter(gender="male").values_list(
+            "age", flat=True
+        )
+        age_list_female = Person.objects.filter(gender="female").values_list(
+            "age", flat=True
+        )
 
         average_all = round(statistics.mean(age_list), 2)
         average_male = round(statistics.mean(age_list_male), 2)
@@ -165,7 +169,9 @@ class Database:
             return "Date format needs to be YYYY/mm/dd (for example 2137/05/04)!"
         if (end_date_conv - start_date_conv).days < 0:
             return f"First date needs to be earlier then second one!"
-        for person_date in Person.objects.filter(dob__range=(start_date_conv, end_date_conv)):
+        for person_date in Person.objects.filter(
+            dob__range=(start_date_conv, end_date_conv)
+        ):
             dob = person_date.dob[:10].replace("-", "/")
             result_dict[person_date.first + " " + person_date.last] = dob
         return result_dict
