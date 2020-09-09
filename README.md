@@ -6,10 +6,10 @@ Tasks created for back-end intern in Profil Software company.
 ## Table of contents
 * [Technologies](#technologies)
 * [Setup](#setup)
-* [Contact](#contact)
 * [Commands](#commands)
 * [Errors](#errors)
 * [Tests](#tests)
+* [Contact](#contact)
 
 ## Technologies
 * Python version: 3.7
